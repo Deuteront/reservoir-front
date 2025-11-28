@@ -22,9 +22,9 @@ export function ThemeSwitcher({
   const { theme, setTheme } = useTheme();
 
   const themeLabelMap: Record<Theme, string> = {
-    light: 'Claro',
-    dark: 'Escuro',
-    system: 'Sistema',
+    light: 'Light',
+    dark: 'Dark',
+    system: 'System',
   };
 
   const iconFor = (t: Theme) => {
@@ -56,13 +56,13 @@ export function ThemeSwitcher({
         </SelectTrigger>
         <SelectContent className={' w-full'}>
           <SelectItem value="light">
-            <Sun className="size-4" /> Claro
+            <Sun className="size-4" /> Light
           </SelectItem>
           <SelectItem value="dark">
-            <Moon className="size-4" /> Escuro
+            <Moon className="size-4" /> Dark
           </SelectItem>
           <SelectItem value="system">
-            <Monitor className="size-4" /> Sistema
+            <Monitor className="size-4" /> System
           </SelectItem>
         </SelectContent>
       </Select>

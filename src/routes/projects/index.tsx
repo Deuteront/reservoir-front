@@ -12,6 +12,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -21,8 +28,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useState, useMemo } from 'react';
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
-import { Select } from '@radix-ui/react-select';
 
 export const Route = createFileRoute('/projects/')({
   component: ProjectsList,
