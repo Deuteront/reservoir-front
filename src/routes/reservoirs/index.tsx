@@ -77,18 +77,18 @@ function ReservoirsList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Project</TableHead>
-                <TableHead>ID</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((p) => (
                 <TableRow key={p.id}>
+                  <TableCell>{p.id}</TableCell>
                   <TableCell>{p.name_reservoir}</TableCell>
                   <TableCell className="font-mono text-xs">{p.project_id}</TableCell>
-                  <TableCell>{p.id}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Link to="/reservoirs/$id" params={{ id: String(p.id) }}>

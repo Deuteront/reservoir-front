@@ -77,18 +77,18 @@ function ProjectsList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>UUID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>UUID</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((p) => (
                 <TableRow key={p.project_id}>
+                  <TableCell className="font-mono text-xs">{p.project_id}</TableCell>
                   <TableCell>{p.name_project}</TableCell>
                   <TableCell>{p.type_ccus_strategies_id}</TableCell>
-                  <TableCell className="font-mono text-xs">{p.project_id}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Link to="/projects/$id" params={{ id: p.project_id }}>
