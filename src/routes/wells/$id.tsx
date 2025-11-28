@@ -140,7 +140,7 @@ function WellFormPage() {
 
   return (
     <div className="p-4 max-w-xl space-y-4">
-      <h1 className="text-xl font-semibold mb-4">{isNew ? 'Novo Well' : 'Editar Well'}</h1>
+      <h1 className="text-xl font-semibold mb-4">{isNew ? 'New Well' : 'Edit Well'}</h1>
       <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -148,7 +148,7 @@ function WellFormPage() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -162,11 +162,11 @@ function WellFormPage() {
             name="project_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Projeto</FormLabel>
+                <FormLabel>Project</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
                       {projects.map((p: Project) => (
@@ -187,14 +187,14 @@ function WellFormPage() {
             name="reservoir_details_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Reservatório</FormLabel>
+                <FormLabel>Reservoir</FormLabel>
                 <FormControl>
                   <Select
                     onValueChange={(v) => field.onChange(Number(v))}
                     value={String(field.value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
                       {reservoirs.map((r: Reservoir) => (

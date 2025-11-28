@@ -112,9 +112,7 @@ function ReservoirFormPage() {
 
   return (
     <div className="p-4 max-w-xl">
-      <h1 className="text-xl font-semibold mb-4">
-        {isNew ? 'Novo Reservatório' : 'Editar Reservatório'}
-      </h1>
+      <h1 className="text-xl font-semibold mb-4">{isNew ? 'New Reservoir' : 'Edit Reservoir'}</h1>
       <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
@@ -122,7 +120,7 @@ function ReservoirFormPage() {
             name="name_reservoir"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -135,11 +133,11 @@ function ReservoirFormPage() {
             name="project_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Projeto</FormLabel>
+                <FormLabel>Project</FormLabel>
                 <FormControl>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
                       {projects.map((p: Project) => (
