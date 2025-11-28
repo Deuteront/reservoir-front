@@ -31,10 +31,12 @@ function ReservoirsList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reservoirToDelete, setReservoirToDelete] = useState<number | null>(null);
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['reservoirs'],
     queryFn: reservoirsApi.getAll,
   });
+
+  const items = Array.isArray(data) ? data : [];
 
   const deleteMutation = useMutation({
     mutationFn: reservoirsApi.delete,
@@ -67,6 +69,10 @@ function ReservoirsList() {
       <Card className="p-2">
         {isLoading ? (
           <div className="p-4">Loading...</div>
+        ) : error ? (
+          <div className="p-4 text-red-500">Error loading reservoirs: {error.message}</div>
+        ) : items.length === 0 ? (
+          <div className="p-4 text-gray-500">No reservoirs found</div>
         ) : (
           <Table>
             <TableHeader>

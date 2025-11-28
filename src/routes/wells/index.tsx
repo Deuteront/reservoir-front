@@ -29,10 +29,12 @@ function WellsList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [wellToDelete, setWellToDelete] = useState<number | null>(null);
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['wells'],
     queryFn: wellsApi.getAll,
   });
+
+  const items = Array.isArray(data) ? data : [];
 
   const deleteMutation = useMutation({
     mutationFn: wellsApi.delete,
@@ -65,6 +67,10 @@ function WellsList() {
       <Card className="p-2">
         {isLoading ? (
           <div className="p-4">Loading...</div>
+        ) : error ? (
+          <div className="p-4 text-red-500">Error loading wells: {error.message}</div>
+        ) : items.length === 0 ? (
+          <div className="p-4 text-gray-500">No wells found</div>
         ) : (
           <Table>
             <TableHeader>

@@ -1,0 +1,39 @@
+services:
+  # Development service
+  reservoir-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    container_name: reservoir-dev
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=${VITE_API_URL}
+    networks:
+      - reservoir-network
+    stdin_open: true
+    tty: true
+
+  # Production service
+  reservoir-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+    container_name: reservoir-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=${VITE_API_URL}
+    networks:
+      - reservoir-network
+    restart: unless-stopped
+
+networks:
+  reservoir-network:
+    driver: bridge

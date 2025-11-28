@@ -31,10 +31,12 @@ function ProjectsList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: projectsApi.getAll,
   });
+
+  const items = Array.isArray(data) ? data : [];
 
   const deleteMutation = useMutation({
     mutationFn: projectsApi.delete,
@@ -67,6 +69,10 @@ function ProjectsList() {
       <Card className="p-2">
         {isLoading ? (
           <div className="p-4">Loading...</div>
+        ) : error ? (
+          <div className="p-4 text-red-500">Error loading projects: {error.message}</div>
+        ) : items.length === 0 ? (
+          <div className="p-4 text-gray-500">No projects found</div>
         ) : (
           <Table>
             <TableHeader>
