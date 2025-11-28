@@ -12,6 +12,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -20,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export const Route = createFileRoute('/reservoirs/')({
   component: ReservoirsList,
@@ -30,6 +37,8 @@ function ReservoirsList() {
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reservoirToDelete, setReservoirToDelete] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['reservoirs'],
@@ -37,6 +46,13 @@ function ReservoirsList() {
   });
 
   const items = Array.isArray(data) ? data : [];
+
+  const totalPages = Math.ceil(items.length / pageSize);
+
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return items.slice(startIndex, startIndex + pageSize);
+  }, [items, currentPage, pageSize]);
 
   const deleteMutation = useMutation({
     mutationFn: reservoirsApi.delete,
@@ -56,6 +72,11 @@ function ReservoirsList() {
     if (reservoirToDelete !== null) {
       deleteMutation.mutate(reservoirToDelete);
     }
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setCurrentPage(1);
   };
 
   return (
@@ -84,7 +105,7 @@ function ReservoirsList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((p) => (
+              {paginatedItems.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell>{p.id}</TableCell>
                   <TableCell>{p.name_reservoir}</TableCell>
@@ -109,6 +130,66 @@ function ReservoirsList() {
           </Table>
         )}
       </Card>
+
+      {items.length > 0 && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Rows per page:</span>
+            <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="25">25</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-gray-600">
+              Showing {Math.min((currentPage - 1) * pageSize + 1, items.length)} to{' '}
+              {Math.min(currentPage * pageSize, items.length)} of {items.length} entries
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+            >
+              First
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              Last
+            </Button>
+          </div>
+        </div>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
