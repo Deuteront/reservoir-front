@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { wellsApi } from '@/api/endpoints';
+import { wellsApi, projectsApi, reservoirsApi } from '@/api/endpoints';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -12,6 +12,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -20,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export const Route = createFileRoute('/wells/')({ component: WellsList });
 
@@ -28,13 +35,44 @@ function WellsList() {
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [wellToDelete, setWellToDelete] = useState<number | null>(null);
+  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [selectedReservoir, setSelectedReservoir] = useState<string>('all');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['wells'],
     queryFn: wellsApi.getAll,
   });
 
-  const items = Array.isArray(data) ? data : [];
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: projectsApi.getAll,
+  });
+
+  const { data: reservoirs = [] } = useQuery({
+    queryKey: ['reservoirs'],
+    queryFn: reservoirsApi.getAll,
+  });
+
+  const items = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+
+    let filtered = data;
+
+    if (selectedProject !== 'all') {
+      filtered = filtered.filter((w) => w.project_id === selectedProject);
+    }
+
+    if (selectedReservoir !== 'all') {
+      filtered = filtered.filter((w) => w.reservoir_details_id === Number(selectedReservoir));
+    }
+
+    return filtered;
+  }, [data, selectedProject, selectedReservoir]);
+
+  const filteredReservoirs = useMemo(() => {
+    if (selectedProject === 'all') return reservoirs;
+    return reservoirs.filter((r) => r.project_id === selectedProject);
+  }, [reservoirs, selectedProject]);
 
   const deleteMutation = useMutation({
     mutationFn: wellsApi.delete,
@@ -64,6 +102,41 @@ function WellsList() {
           <Button>New</Button>
         </Link>
       </div>
+
+      <div className=" flex gap-4">
+        <div>
+          <Select onValueChange={setSelectedProject} value={selectedProject}>
+            <SelectTrigger className={'min-w-[200px]'}>
+              <SelectValue placeholder="Filter by Project" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Projects</SelectItem>
+              {projects.map((p) => (
+                <SelectItem key={p.project_id} value={p.project_id}>
+                  {p.name_project}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Select onValueChange={setSelectedReservoir} value={selectedReservoir}>
+            <SelectTrigger className={'min-w-[200px]'}>
+              <SelectValue placeholder="Filter by Reservoir" />
+            </SelectTrigger>
+            <SelectContent className={'min-w-[200px]'}>
+              <SelectItem value="all">All Reservoirs</SelectItem>
+              {filteredReservoirs.map((r) => (
+                <SelectItem key={r.id} value={String(r.id)}>
+                  {r.name_reservoir}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Card className="p-2">
         {isLoading ? (
           <div className="p-4">Loading...</div>
@@ -76,33 +149,40 @@ function WellsList() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
+                <TableHead>Project</TableHead>
                 <TableHead>Reservoir</TableHead>
                 <TableHead>TEC</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>{p.name}</TableCell>
-                  <TableCell>{p.reservoir_details_id}</TableCell>
-                  <TableCell>{p.tec}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Link to="/wells/$id" params={{ id: String(p.id) }}>
-                        <Button variant="secondary">Edit</Button>
-                      </Link>
-                      <Button
-                        variant="destructive"
-                        onClick={() => onDeleteClick(p.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {items.map((p) => {
+                const project = projects.find((proj) => proj.project_id === p.project_id);
+                const reservoir = reservoirs.find((res) => res.id === p.reservoir_details_id);
+
+                return (
+                  <TableRow key={p.id}>
+                    <TableCell>{p.name}</TableCell>
+                    <TableCell>{project?.name_project || p.project_id}</TableCell>
+                    <TableCell>{reservoir?.name_reservoir || p.reservoir_details_id}</TableCell>
+                    <TableCell>{p.tec}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Link to="/wells/$id" params={{ id: String(p.id) }}>
+                          <Button variant="secondary">Edit</Button>
+                        </Link>
+                        <Button
+                          variant="destructive"
+                          onClick={() => onDeleteClick(p.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
